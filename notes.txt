@@ -1,0 +1,16 @@
+
+JAS Library (http://krum.rz.uni-mannheim.de/jas/) already linked, tossing some good doc...
+
+http://java2s.com/Open-Source/Java/Algebra/symja/edu/jas/poly/Examples.java.htm
+http://krum.rz.uni-mannheim.de/jas/design.html
+http://krum.rz.uni-mannheim.de/jas/doc/api/index.html
+
+
+
+Already included the polynomial examples, made a simple one by myself to clarify.
+
+I think the library is easy to use and well documented. 
+It relies heavily in the factory design pattern. Review it if you don't know it well.
+
+I'm heading straight to die in bed, night!
+
