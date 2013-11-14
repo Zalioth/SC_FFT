@@ -29,9 +29,9 @@ public class Main
 {
 	public static void main(String[] args)
 	{
-		
+		ComplexFieldTest.main();
       
-      exampleMine();
+      //exampleMine();
       //example0();
       //example1();
       //example2();
@@ -58,8 +58,8 @@ public class Main
       // Polynomial factory
       GenPolynomialRing<BigComplex> ring = new GenPolynomialRing<BigComplex>(fac,1,var);
           
-      GenPolynomial<BigComplex> zero = ring.getONE();
-      GenPolynomial<BigComplex> one = ring.getZERO();
+      GenPolynomial<BigComplex> zero = ring.getZERO();
+      GenPolynomial<BigComplex> one = ring.getONE();
       GenPolynomial<BigComplex> x = ring.univariate(0);
       
       System.out.println(zero);
