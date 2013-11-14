@@ -2,6 +2,7 @@
  * Creado el 12/11/2013
  */
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -17,6 +18,7 @@ import edu.jas.poly.GenPolynomial;
 import edu.jas.poly.GenPolynomialRing;
 import edu.jas.poly.GenSolvablePolynomial;
 import edu.jas.poly.GenSolvablePolynomialRing;
+import edu.jas.poly.Monomial;
 import edu.jas.poly.OptimizedPolynomialList;
 import edu.jas.poly.PolynomialList;
 import edu.jas.poly.TermOrder;
@@ -27,8 +29,33 @@ public class Main
 {
 	public static void main(String[] args)
 	{
+		
+      
+      exampleMine();
+      //example0();
+      //example1();
+      //example2();
+      //example3();
+    	//example4();
+    	//example5();
+    	//example6();
+      //example7();
+      //example7();
+      //example8();
+      //example9();
+      //example10();
+      //example11();
+      //example12();
+	}
+	
+	
+	public static void exampleMine() 
+	{
+		// Big Complex factory
 		BigComplex fac = new BigComplex();
+		// Using only one variable, "x"
       String[] var = new String[]{ "x" };
+      // Polynomial factory
       GenPolynomialRing<BigComplex> ring = new GenPolynomialRing<BigComplex>(fac,1,var);
           
       GenPolynomial<BigComplex> zero = ring.getONE();
@@ -51,24 +78,16 @@ public class Main
       System.out.println("______________________");
       System.out.println(p1.sum(p2));
       
-      //example0();
-      //example1();
-      //example2();
-      //example3();
-    	//example4();
-    	//example5();
-    	//example6();
-      //example7();
-      //example7();
-      //example8();
-      //example9();
-      //example10();
-      //example11();
-      //example12();
+      // Demonstration on how to access each of the elements (real and imaginary part of the coefficient and variable exponent)
+      System.out.println();
+      System.out.println("Elements of p2:");
+      Iterator<Monomial<BigComplex>> it = p2.iterator();
+      while(it.hasNext())
+      {
+      	Monomial<BigComplex> elem = it.next();
+      	System.out.println("(("+elem.c.re+ ")+("+elem.c.im+"*i)" + ")x^" + elem.e.degree());
+      }
 	}
-	
-	
-	
 	
 	
 	
