@@ -23,12 +23,21 @@ public class ComplexFieldTest
       // Generate two random polynomials with the specified max degree
       GenPolynomial<BigComplex> p1 = ring.random(5);
       GenPolynomial<BigComplex> p2 = ring.random(5);
+      System.out.println("p1: "+p1.toString());
+      System.out.println("p2: "+p2.toString());
       
       // Multiply using the library (to check if my implementation is correct)
       GenPolynomial<BigComplex> libraryMultiplication = p1.multiply(p2);
       
       // Multiply using the school algorithm (implemented by me)
       GenPolynomial<BigComplex> schoolMultiplication = multiplySchool(p1, p2);
+      
+      // Multiply using the FFT algorithm (implemented by me)
+      GenPolynomial<BigComplex> fftMultiplication = multiplyFFT(p1, p2);
+      
+      System.out.println("library: "+libraryMultiplication.toString());
+   	System.out.println("school: "+schoolMultiplication.toString());
+   	System.out.println("fft: "+fftMultiplication.toString());
       
       if(libraryMultiplication.toString().equals(schoolMultiplication.toString()))
       {
@@ -37,12 +46,7 @@ public class ComplexFieldTest
       else
       {
       	System.out.println("School multiplication is NOT correct");
-      	System.out.println("library: "+libraryMultiplication);
-      	System.out.println("mine: "+schoolMultiplication);
       }
-      
-      // Multiply using the FFT algorithm (implemented by me)
-      GenPolynomial<BigComplex> fftMultiplication = multiplyFFT(p1, p2);
       
       if(libraryMultiplication.toString().equals(fftMultiplication.toString()))
       {
@@ -51,8 +55,6 @@ public class ComplexFieldTest
       else
       {
       	System.out.println("FFT multiplication is NOT correct");
-      	System.out.println("library: "+libraryMultiplication);
-      	System.out.println("mine: "+fftMultiplication);
       }
 	}
 	
