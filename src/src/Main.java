@@ -1,3 +1,4 @@
+package src;
 /*
  * Creado el 12/11/2013
  */
@@ -29,7 +30,7 @@ public class Main {
 	public static void main(String[] args) {
 		
 		// ComplexFieldTest.main();
-		ModIntegerFieldTest.main();
+		(new ZpFieldMultiplications(17)).main();
 
 		// exampleMine();
 		// example0();
