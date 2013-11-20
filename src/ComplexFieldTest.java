@@ -20,6 +20,9 @@ public class ComplexFieldTest
       // Polynomial factory
       GenPolynomialRing<BigComplex> ring = new GenPolynomialRing<BigComplex>(fac,1,var);
       
+      System.out.println("gen: "+fac.generators().toString());
+      
+      
       // Generate two random polynomials with the specified max degree
       GenPolynomial<BigComplex> p1 = ring.random(5);
       GenPolynomial<BigComplex> p2 = ring.random(5);
