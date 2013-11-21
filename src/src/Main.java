@@ -27,11 +27,16 @@ import edu.jas.poly.TermOrderOptimization;
 import edu.jas.poly.WeylRelations;
 
 public class Main {
-	public static void main(String[] args) {
+	public static void main(String[] args) 
+	{
+		System.out.println("\tCOMPLEX FIELD TEST\n");
+		testComplexFieldMultiplications();
+		System.out.println("\n");
 		
-		// ComplexFieldTest.main();
+		System.out.println("\tZp FIELD TEST\n");
 		(new ZpFieldMultiplications(17)).main();
-
+		System.out.println("\n");
+		
 		// exampleMine();
 		// example0();
 		// example1();
@@ -47,6 +52,56 @@ public class Main {
 		// example10();
 		// example11();
 		// example12();
+	}
+	
+	public static void testComplexFieldMultiplications()
+	{
+		// Big Complex factory
+		BigComplex coefficientFactory = new BigComplex();
+		// Using only one variable, "x"
+      String[] variables = new String[]{ "x" };
+      // Polynomial factory
+      GenPolynomialRing<BigComplex> polynomialFactory = new GenPolynomialRing<BigComplex>(coefficientFactory,variables.length,variables);
+      
+      ComplexFieldMultiplications cfm = new ComplexFieldMultiplications(coefficientFactory, variables, polynomialFactory);
+      
+      
+      // Generate two random polynomials with the specified max degree
+      GenPolynomial<BigComplex> p1 = polynomialFactory.random(5);
+      GenPolynomial<BigComplex> p2 = polynomialFactory.random(5);
+      System.out.println("p1: "+p1.toString());
+      System.out.println("p2: "+p2.toString());
+      
+      // Multiply using the library (to check if my implementation is correct)
+      GenPolynomial<BigComplex> libraryMultiplication = p1.multiply(p2);
+      
+      // Multiply using the school algorithm (implemented by me)
+      GenPolynomial<BigComplex> schoolMultiplication = cfm.multiplySchool(p1, p2);
+      
+      // Multiply using the FFT algorithm (implemented by me)
+      GenPolynomial<BigComplex> fftMultiplication = cfm.multiplyFFT(p1, p2);
+      
+      System.out.println("library: "+libraryMultiplication.toString());
+   	System.out.println("school: "+schoolMultiplication.toString());
+   	System.out.println("fft: "+fftMultiplication.toString());
+      
+      if(libraryMultiplication.toString().equals(schoolMultiplication.toString()))
+      {
+      	System.out.println("School multiplication is correct");
+      }
+      else
+      {
+      	System.out.println("School multiplication is NOT correct");
+      }
+      
+      if(libraryMultiplication.toString().equals(fftMultiplication.toString()))
+      {
+      	System.out.println("FFT multiplication is correct");
+      }
+      else
+      {
+      	System.out.println("FFT multiplication is NOT correct");
+      }
 	}
 
 	public static void exampleMine() {
