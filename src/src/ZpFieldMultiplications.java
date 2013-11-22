@@ -1,6 +1,7 @@
 package src;
 
 import java.util.Iterator;
+import java.util.Vector;
 
 import edu.jas.arith.ModInteger;
 import edu.jas.arith.ModIntegerRing;
@@ -147,4 +148,25 @@ public class ZpFieldMultiplications {
 		}
 		return (int)(i-1);
 	}	
+	
+	public Vector<ModInteger> evenVector(Vector<ModInteger> vector)
+	{
+		Vector<ModInteger> result = new Vector<ModInteger>();
+		for(int i = 0; i < vector.size(); i++){
+			if((i+1) % 2 == 0){
+				result.add(vector.elementAt(i));
+			}
+		}
+		return result;
+	}
+	
+	public Vector<ModInteger> oddVector(Vector<ModInteger> vector){
+		Vector<ModInteger> result = new Vector<ModInteger>();
+		for(int i = 0; i < vector.size(); i++){
+			if((i+1) % 2 != 0){
+				result.add(vector.elementAt(i));
+			}
+		}
+		return result;
+	}
 }

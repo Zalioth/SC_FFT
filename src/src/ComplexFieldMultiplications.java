@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import edu.jas.arith.BigComplex;
 import edu.jas.arith.BigRational;
+import edu.jas.arith.ModInteger;
 import edu.jas.poly.GenPolynomial;
 import edu.jas.poly.GenPolynomialRing;
 import edu.jas.poly.Monomial;
@@ -155,5 +156,34 @@ public class ComplexFieldMultiplications
       }
 		
 		return denseRepresentation;
+	}
+	
+
+	public Vector<BigComplex> evenVector(Vector<BigComplex> vector)
+	{
+		Vector<BigComplex> result = new Vector<BigComplex>();
+		for(int i = 0; i < vector.size(); i++)
+		{
+			//is an even position
+			if((i+1) % 2 == 0)
+			{
+				result.add(vector.elementAt(i));
+			}
+		}
+		return result;
+	}
+	
+	public Vector<BigComplex> oddVector(Vector<BigComplex> vector)
+	{
+		Vector<BigComplex> result = new Vector<BigComplex>();
+		for(int i = 0; i < vector.size(); i++)
+		{
+			//is and odd position
+			if((i+1) % 2 != 0)
+			{
+				result.add(vector.elementAt(i));
+			}
+		}
+		return result;
 	}
 }
