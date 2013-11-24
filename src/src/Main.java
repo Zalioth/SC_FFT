@@ -6,7 +6,6 @@ package src;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Vector;
 
 import edu.jas.arith.BigComplex;
 import edu.jas.arith.BigInteger;
@@ -33,9 +32,11 @@ public class Main {
 		testComplexFieldMultiplications();
 		System.out.println("\n");
 		
+		/*
 		System.out.println("\tZp FIELD TEST\n");
 		(new ZpFieldMultiplications(17)).main();
 		System.out.println("\n");
+		*/
 		
 		// exampleMine();
 		// example0();
@@ -54,6 +55,17 @@ public class Main {
 		// example12();
 	}
 	
+	public static long getPrime() 
+	{
+		long prime = 2; // 2^60-93; // 2^30-35; //19; knuth (2,390)
+		for (int i = 1; i < 60; i++) {
+			prime *= 2;
+		}
+		prime -= 93;
+		// System.out.println("prime = " + prime);
+		return prime;
+	}
+	
 	public static void testComplexFieldMultiplications()
 	{
 		// Big Complex factory
@@ -67,8 +79,8 @@ public class Main {
       
       
       // Generate two random polynomials with the specified max degree
-      GenPolynomial<BigComplex> p1 = polynomialFactory.random(5);
-      GenPolynomial<BigComplex> p2 = polynomialFactory.random(5);
+      GenPolynomial<BigComplex> p1 = polynomialFactory.random(3);
+      GenPolynomial<BigComplex> p2 = polynomialFactory.random(3);
       System.out.println("p1: "+p1.toString());
       System.out.println("p2: "+p2.toString());
       
@@ -238,16 +250,6 @@ public class Main {
 
 		AlgebraicNumber<BigRational> a = fac.random(15);
 		System.out.println("a = " + a);
-	}
-
-	protected static long getPrime() {
-		long prime = 2; // 2^60-93; // 2^30-35; //19; knuth (2,390)
-		for (int i = 1; i < 60; i++) {
-			prime *= 2;
-		}
-		prime -= 93;
-		// System.out.println("prime = " + prime);
-		return prime;
 	}
 
 	/**

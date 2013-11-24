@@ -169,4 +169,23 @@ public class ZpFieldMultiplications {
 		}
 		return result;
 	}
+	
+	// Both vectors must have the same size
+	private Vector<ModInteger> multiplyElementByElemnt(Vector<ModInteger> v1, Vector<ModInteger> v2)
+	{
+		Vector<ModInteger>  r = new Vector<ModInteger>();
+		
+		if(v1.size() != v2.size())
+		{
+			System.out.println("multiplyElementByElemnt: error, different vector sizes.");
+			return null;
+		}
+		
+		for(int i=0; i<v1.size(); ++i)
+		{
+			r.add(v1.elementAt(i).multiply(v2.elementAt(i)));
+		}
+		
+		return r;
+	}
 }

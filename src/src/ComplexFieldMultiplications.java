@@ -1,11 +1,13 @@
 package src;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
 
 import edu.jas.arith.BigComplex;
 import edu.jas.arith.BigRational;
-import edu.jas.arith.ModInteger;
+import edu.jas.poly.ExpVector;
 import edu.jas.poly.GenPolynomial;
 import edu.jas.poly.GenPolynomialRing;
 import edu.jas.poly.Monomial;
@@ -18,7 +20,7 @@ public class ComplexFieldMultiplications
 {
 	private BigComplex coefficientFactory;
    private String[] variables;
-   GenPolynomialRing<BigComplex> polynomialFactory;
+   private GenPolynomialRing<BigComplex> polynomialFactory;
 	
 	public ComplexFieldMultiplications(BigComplex coefficientFactory,
 			String[] variables, GenPolynomialRing<BigComplex> polynomialFactory)
@@ -80,27 +82,70 @@ public class ComplexFieldMultiplications
 	public GenPolynomial<BigComplex> multiplyFFT(GenPolynomial<BigComplex> p1,
 			GenPolynomial<BigComplex> p2)
 	{
-		GenPolynomial<BigComplex> result = p1;
+		GenPolynomial<BigComplex> result;
 		
-		// Get the minimum power of two that's greater than the product of the degrees of the polynomials
-		long maxDegree = (long) Math.pow( 2, Math.ceil( Math.log(p1.degree() * p2.degree())/Math.log(2) ) );
+		// Get the minimum power of two that's greater than the sum of the degrees of the polynomials
+		long m = (long) Math.ceil( Math.log(p1.degree()+1 + p2.degree()+1) / Math.log(2) );
+		long maxDegree = (long) Math.pow(2, m);
+		
+		Vector<BigComplex> w = rootsOfUnity(maxDegree);
 		
 		// Get the dense representations of the polynomials
 		Vector<BigComplex> denseP1 = denseRepresentation(p1, maxDegree);
 		Vector<BigComplex> denseP2 = denseRepresentation(p2, maxDegree);
 		
-		// dftP1 = DFT(p1)
-		// dftP2 = DFT(p2)
-		// mult = dftP1 * dftP2 (element by element)
-		// resultDense = pow(pow(2,maxDegree),-1) * IDFT(mult)
-		// result = getPolynomial(resultDense)
+		Vector<BigComplex> fftP1 = FFT(m, w.firstElement(), denseP1);
+		Vector<BigComplex> fftP2 = FFT(m, w.firstElement(), denseP2);
+		
+		Vector<BigComplex> mult = multiplyElementByElemnt(fftP1, fftP2);
+		
+		// Inverse FFT of the multiplication
+		Vector<BigComplex> resultDense = FFT(m, w.firstElement().inverse(), mult);
+		for(int i=0; i<resultDense.size(); ++i)
+		{
+			resultDense.set(i, resultDense.elementAt(i).multiply(new BigComplex(new BigRational(1), new BigRational(maxDegree))));
+		}
+		
+		result = getPolynomial(resultDense);
 		
 		return result;
 	}
 	
-	private Vector<BigComplex> rootsOfUnity(int n)
+	public Vector<BigComplex> FFT(long m, BigComplex w, Vector<BigComplex> densePoly)
 	{
-		Vector<BigComplex> roots = new Vector<BigComplex>(n);
+		Vector<BigComplex> result = new Vector<BigComplex>();
+		
+		if(m == 0)
+		{
+			result.add(densePoly.firstElement());
+		}
+		else
+		{
+			Vector<BigComplex> b = oddVector(densePoly);
+			Vector<BigComplex> c = evenVector(densePoly);
+			
+			Vector<BigComplex> B = FFT(m-1, w.multiply(w), b);
+			Vector<BigComplex> C = FFT(m-1, w.multiply(w), c);
+			
+			BigComplex[] temp = new BigComplex[(int) Math.pow(2, m)];
+			for(int i=0; i<Math.pow(2,m-1); ++i)
+			{
+				temp[i] = B.elementAt(i).sum( C.elementAt(i).multiply( power(w,i) ) );
+				temp[(int) (Math.pow(2, m-1) + i)] = B.elementAt(i).subtract( C.elementAt(i).multiply( power(w,i) ) );
+			}
+			int asd = 0;
+			for(int i=0; i<Math.pow(2, m); ++i)
+			{
+				result.add(temp[i]);
+			}
+		}
+		
+		return result;
+	}
+	
+	private Vector<BigComplex> rootsOfUnity(long n)
+	{
+		Vector<BigComplex> roots = new Vector<BigComplex>();
 		
 		// Divide the complex vector space (whose modulus are equal to 1)
 		// in n sectors. Each of the points obtained is an nth root of unity.
@@ -113,7 +158,15 @@ public class ComplexFieldMultiplications
 			double real = modulus * Math.cos(i * sectorSize);
 			double imaginary = modulus * Math.sin(i * sectorSize);
 			
-			roots.add(new BigComplex(new BigRational(""+real), new BigRational(""+imaginary)));
+			
+			DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+			otherSymbols.setDecimalSeparator('.');
+			DecimalFormat df = new DecimalFormat("0.000000000000000000000000000000", otherSymbols);
+			df.setGroupingUsed(false);
+			String strReal = df.format(real);
+			String strImaginary = df.format(imaginary);
+			
+			roots.add(new BigComplex(new BigRational(strReal), new BigRational(strImaginary)));
 		}
 		
 		return roots;
@@ -125,15 +178,13 @@ public class ComplexFieldMultiplications
 		
 		Monomial<BigComplex> monomial = null;
 		
-		long lastDegree = maxDegree+1;
+		long lastDegree = maxDegree;
 		
 		Iterator<Monomial<BigComplex>> iter = p.iterator();
       while(iter.hasNext())
       {
       	// Get an element of p.
       	monomial = iter.next();
-      	//001023004
-      	//(0,8)(0,7)(1,6)(0,5)(2,4)(3,3)(0,2)(0,1)(4,0)
       	if(monomial.e.degree()+1 < lastDegree)
       	{
       		// Fill with zeros
@@ -159,7 +210,7 @@ public class ComplexFieldMultiplications
 	}
 	
 
-	public Vector<BigComplex> evenVector(Vector<BigComplex> vector)
+	private Vector<BigComplex> evenVector(Vector<BigComplex> vector)
 	{
 		Vector<BigComplex> result = new Vector<BigComplex>();
 		for(int i = 0; i < vector.size(); i++)
@@ -173,7 +224,7 @@ public class ComplexFieldMultiplications
 		return result;
 	}
 	
-	public Vector<BigComplex> oddVector(Vector<BigComplex> vector)
+	private Vector<BigComplex> oddVector(Vector<BigComplex> vector)
 	{
 		Vector<BigComplex> result = new Vector<BigComplex>();
 		for(int i = 0; i < vector.size(); i++)
@@ -185,5 +236,58 @@ public class ComplexFieldMultiplications
 			}
 		}
 		return result;
+	}
+	
+	// Both vectors must have the same size
+	private Vector<BigComplex> multiplyElementByElemnt(Vector<BigComplex> v1, Vector<BigComplex> v2)
+	{
+		Vector<BigComplex>  r = new Vector<BigComplex>();
+		
+		if(v1.size() != v2.size())
+		{
+			System.out.println("multiplyElementByElemnt: error, different vector sizes.");
+			return null;
+		}
+		
+		for(int i=0; i<v1.size(); ++i)
+		{
+			r.add(v1.elementAt(i).multiply(v2.elementAt(i)));
+		}
+		
+		return r;
+	}
+	
+	private BigComplex power(BigComplex base, long exponent)
+	{
+		BigComplex power = null;
+		if(exponent == 0)
+		{
+			return new BigComplex(1);
+		}
+		else if(exponent == 1)
+		{
+			return base;
+		}
+		else
+		{
+			for(long i=0; i<exponent; ++i)
+			{
+				power = base.multiply(base);
+			}
+			return power;
+		}
+	}
+	
+	private GenPolynomial<BigComplex> getPolynomial(Vector<BigComplex> denseRepresentation)
+	{
+		GenPolynomial<BigComplex> polynomial = polynomialFactory.getZERO();
+		
+		for(int i=0; i<denseRepresentation.size(); ++i)
+		{
+			ExpVector exponent = ExpVector.create(1,0,denseRepresentation.size()-i);
+			polynomial = polynomial.sum(denseRepresentation.elementAt(i),exponent);
+		}
+		
+		return polynomial;
 	}
 }
