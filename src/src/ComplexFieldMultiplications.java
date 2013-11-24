@@ -89,7 +89,7 @@ public class ComplexFieldMultiplications
 		long m = (long) Math.ceil( Math.log(p1.degree()+1 + p2.degree()+1) / Math.log(2) );
 		long maxDegree = (long) Math.pow(2, m);
 		
-		Vector<BigComplex> w = rootsOfUnity(maxDegree);
+		Vector<BigComplex> w = primitiveRootsOfUnity(maxDegree);
 		
 		// Get the dense representations of the polynomials
 		Vector<BigComplex> denseP1 = denseRepresentation(p1, maxDegree);
@@ -144,6 +144,42 @@ public class ComplexFieldMultiplications
 		return result;
 	}
 	
+	private Vector<BigComplex> primitiveRootsOfUnity(long n)
+	{
+		Vector<BigComplex> primitiveRootsOfUnity = new Vector<BigComplex>();
+		Vector<BigComplex> rootsOfUnity = rootsOfUnity(n);
+		
+		for(int i=0; i<rootsOfUnity.size(); ++i)
+		{
+			// For each root of unity, check if it's primitive.
+			Vector<BigComplex> previousPowers = new Vector<BigComplex>();
+			// Calculate it's powers between 0 and n
+			for(int j=0; j<n; ++j)
+			{
+				previousPowers.add(power(rootsOfUnity.elementAt(i), j));
+			}
+			
+			boolean isPrimitive = true;
+			// Check that there is no two equal powers
+			for(int j=0; j<previousPowers.size(); ++j)
+			{
+				for(int k=j+1; k<previousPowers.size(); ++k)
+				{
+					if(previousPowers.elementAt(j) == previousPowers.elementAt(k))
+					{
+						isPrimitive = false;
+					}
+				}
+			}
+			if(isPrimitive)
+			{
+				primitiveRootsOfUnity.add(rootsOfUnity.elementAt(i));
+			}
+		}
+		
+		return primitiveRootsOfUnity;
+	}
+	
 	private Vector<BigComplex> rootsOfUnity(long n)
 	{
 		Vector<BigComplex> roots = new Vector<BigComplex>();
@@ -162,7 +198,8 @@ public class ComplexFieldMultiplications
 			
 			DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
 			otherSymbols.setDecimalSeparator('.');
-			DecimalFormat df = new DecimalFormat("0.000000000000000000000000000000", otherSymbols);
+			DecimalFormat df = new DecimalFormat("0.000", otherSymbols);
+			df.setMaximumFractionDigits(64);
 			df.setGroupingUsed(false);
 			String strReal = df.format(real);
 			String strImaginary = df.format(imaginary);
