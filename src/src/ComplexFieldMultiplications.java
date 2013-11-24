@@ -1,6 +1,7 @@
 package src;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Vector;
@@ -206,7 +207,8 @@ public class ComplexFieldMultiplications
    		}
       }
 		
-		return denseRepresentation;
+      Collections.reverse(denseRepresentation);
+	  return denseRepresentation;
 	}
 	
 
@@ -278,13 +280,19 @@ public class ComplexFieldMultiplications
 		}
 	}
 	
+	/**
+	 * @post denseRepresentation is reversed
+	 * @param denseRepresentation
+	 * @return
+	 */
 	private GenPolynomial<BigComplex> getPolynomial(Vector<BigComplex> denseRepresentation)
 	{
+		Collections.reverse(denseRepresentation);
 		GenPolynomial<BigComplex> polynomial = polynomialFactory.getZERO();
 		
 		for(int i=0; i<denseRepresentation.size(); ++i)
 		{
-			ExpVector exponent = ExpVector.create(1,0,denseRepresentation.size()-i);
+			ExpVector exponent = ExpVector.create(1,0,denseRepresentation.size()-i-1);
 			polynomial = polynomial.sum(denseRepresentation.elementAt(i),exponent);
 		}
 		

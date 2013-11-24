@@ -1,13 +1,18 @@
 package src;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Vector;
 
+import edu.jas.arith.BigComplex;
+import edu.jas.arith.BigRational;
 import edu.jas.arith.ModInteger;
 import edu.jas.arith.ModIntegerRing;
+import edu.jas.poly.ExpVector;
 import edu.jas.poly.GenPolynomial;
 import edu.jas.poly.GenPolynomialRing;
 import edu.jas.poly.Monomial;
+import edu.jas.structure.Power;
 
 public class ZpFieldMultiplications {
 	
@@ -17,7 +22,7 @@ public class ZpFieldMultiplications {
 	
 	public ZpFieldMultiplications(long prime){
 		this.prime = prime;
-		ModIntegerRing fact = new ModIntegerRing(prime);
+		fact = new ModIntegerRing(prime);
 		String[] var = new String[] { "x" };
 		// Polynomial factory
 		ring = new GenPolynomialRing<ModInteger>( fact, 1,var);
@@ -25,18 +30,26 @@ public class ZpFieldMultiplications {
 
 	public void main() {
 
+		Vector<ModInteger> test = new Vector<ModInteger>();
+		/*test.add(new ModInteger(fact,15));
+		test.add(new ModInteger(fact,1));
+		test.add(new ModInteger(fact,11));
+		test.add(new ModInteger(fact,3));
+		test.add(new ModInteger(fact,0));
+		test.add(new ModInteger(fact,0));
+		test.add(new ModInteger(fact,0));
+		test.add(new ModInteger(fact,0));
+		
+		Vector<ModInteger> res = this.FFT(3, new ModInteger(fact,9), test);*/
 	
 		System.out.println("gen: " + ring.generators().toString());
 
 		// Generate two random polynomials with the specified max degree
-		GenPolynomial<ModInteger> p1 = ring.random(5);
-		GenPolynomial<ModInteger> p2 = ring.random(5);
+		GenPolynomial<ModInteger> p1 = ring.random(6);
+		GenPolynomial<ModInteger> p2 = ring.random(6);
 		
 		System.out.println("p1: " + p1.toString());
 		System.out.println("p2: " + p2.toString());
-
-		System.out.println("M: " + getM(p1,p2));
-		//add(p1,prime);
 		
 		   // Multiply using the library (to check if my implementation is correct)
 	      GenPolynomial<ModInteger> libraryMultiplication = p1.multiply(p2);
@@ -46,10 +59,13 @@ public class ZpFieldMultiplications {
 	      
 	      // Multiply using the FFT algorithm (implemented by me [the other me])
 	      GenPolynomial<ModInteger> fftMultiplication = multiplyFFT(p1, p2);
+	   
+	    
+	      
 
 		System.out.println("library: " + libraryMultiplication.toString());
 		System.out.println("school: " + schoolMultiplication.toString());
-		//System.out.println("fft: " + fftMultiplication.toString());
+		System.out.println("fft: " + fftMultiplication.toString());
 		
 
 		if (libraryMultiplication.toString().equals(
@@ -67,16 +83,6 @@ public class ZpFieldMultiplications {
 		}
 	}
 
-	private static GenPolynomial<ModInteger> multiplyFFT(GenPolynomial<ModInteger> p1, GenPolynomial<ModInteger> p2) {
-		// ModInteger Factory
-				ModIntegerRing cfac = new ModIntegerRing(7);
-				// Using only one variable, "x"
-				String[] var = new String[] { "x" };
-				// Polynomial factory
-				 GenPolynomialRing<ModInteger> ring = new GenPolynomialRing<ModInteger>( cfac, 1,var);
-		return ring.getZERO();
-	}
-	
 	private GenPolynomial<ModInteger> multiplySchool(GenPolynomial<ModInteger> p1, GenPolynomial<ModInteger> p2,long prime) {
 		
 		// Initialize the result as zero.
@@ -113,27 +119,59 @@ public class ZpFieldMultiplications {
 
 		return result;
 	}
-	
-	// Calcula la primera raiz enésima de la unidad
-	public static int unitSquare(long base, int degree){
-		// ModInteger Factory
-		ModIntegerRing mfac = new ModIntegerRing(base);
 		
+	public GenPolynomial<ModInteger> multiplyFFT(GenPolynomial<ModInteger> p1,
+			GenPolynomial<ModInteger> p2)
+	{
+		GenPolynomial<ModInteger> result;
 		
-		for(int i = 2; i < base; i++){
-			ModInteger orig = new ModInteger(mfac,i);
-			ModInteger sqrt = new ModInteger(mfac,i);
-			
-			for(int j = 2; j <= degree; j++){
-				sqrt = sqrt.multiply(orig);
-			}
-			
-			if(!sqrt.equals(mfac.getONE())){
-				return (int)(Math.pow(i,2.0) % base);
-			}
+		// Get the minimum power of two that's greater than the sum of the degrees of the polynomials
+		long m = this.getM(p1, p2);
+		long maxDegree = (long) Math.pow(2, m);
+		
+		ModInteger w = rootOfUnity(maxDegree);
+		
+		// Get the dense representations of the polynomials
+		Vector<ModInteger> denseP1 = denseRepresentation(p1, maxDegree);
+		Vector<ModInteger> denseP2 = denseRepresentation(p2, maxDegree);
+		
+		Vector<ModInteger> fftP1 = FFT(m, w, denseP1);
+		Vector<ModInteger> fftP2 = FFT(m, w, denseP2);
+		
+		Vector<ModInteger> mult = multiplyElementByElemnt(fftP1, fftP2);
+		
+		// Inverse FFT of the multiplication
+		Vector<ModInteger> resultDense = FFT(m, w.inverse(), mult);
+		ModInteger mult_inverso = new ModInteger(fact,(long)Math.pow(2, m));
+		mult_inverso = mult_inverso.inverse();
+		
+		for(int i=0; i<resultDense.size(); ++i)
+		{
+			resultDense.set(i, resultDense.elementAt(i).multiply(mult_inverso));
 		}
+		
+		result = getPolynomial(resultDense);
+		
+		return result;
+	}
 	
-		return -1;
+	/**
+	 * @post denseRepresentation is reversed
+	 * @param denseRepresentation
+	 * @return
+	 */
+	private GenPolynomial<ModInteger> getPolynomial(Vector<ModInteger> denseRepresentation)
+	{
+		Collections.reverse(denseRepresentation);
+		GenPolynomial<ModInteger> polynomial = ring.getZERO();
+		
+		for(int i=0; i<denseRepresentation.size(); ++i)
+		{
+			ExpVector exponent = ExpVector.create(1,0,denseRepresentation.size()-i-1);
+			polynomial = polynomial.sum(denseRepresentation.elementAt(i),exponent);
+		}
+		
+		return polynomial;
 	}
 	
 	// Calcula la M para FFT
@@ -169,6 +207,116 @@ public class ZpFieldMultiplications {
 		}
 		return result;
 	}
+	
+	// Calcula la primera raiz enésima de la unidad
+	public ModInteger rootOfUnity(long maxDegree){
+		// ModInteger Factory
+		ModIntegerRing mfac = new ModIntegerRing(prime);
+		
+		
+		for(int i = 2; i < prime; i++){
+			ModInteger sqrt = new ModInteger(mfac,i);
+				
+			sqrt = this.power(sqrt,maxDegree);
+			
+			if(!sqrt.equals(mfac.getONE())){
+				return (new ModInteger(fact,(int)(Math.pow(i,2.0) % prime)));
+			}
+		}
+	
+		return new ModInteger(fact,-1);
+	}
+	
+	public Vector<ModInteger> FFT(long m, ModInteger w, Vector<ModInteger> densePoly)
+	{
+		Vector<ModInteger> result = new Vector<ModInteger>();
+		
+		if(m == 0)
+		{
+			result.add(densePoly.firstElement());
+		}
+		else
+		{
+			Vector<ModInteger> b = oddVector(densePoly);
+			Vector<ModInteger> c = evenVector(densePoly);
+			
+			Vector<ModInteger> B = FFT(m-1, w.multiply(w), b);
+			Vector<ModInteger> C = FFT(m-1, w.multiply(w), c);
+			
+			ModInteger[] temp = new ModInteger[(int) Math.pow(2, m)];
+			for(int i=0; i<Math.pow(2,m-1); ++i)
+			{
+				temp[i] = B.elementAt(i).sum(C.elementAt(i).multiply(power(w,i)));
+				temp[(int) (Math.pow(2, m-1) + i)] = B.elementAt(i).subtract( C.elementAt(i).multiply( power(w,i) ) );
+			}
+	
+			for(int i=0; i<Math.pow(2, m); ++i)
+			{
+				result.add(temp[i]);
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Calculates base^exp
+	 * @param base
+	 * @param maxDegree
+	 * @return
+	 */
+	private ModInteger power(ModInteger base, long maxDegree){
+		ModInteger result =  base.copy();
+		ModInteger partialExp = base.copy();
+		
+		if(maxDegree == 0){
+			return (new ModInteger(fact,1));
+		}
+		for(int i = 2; i <= maxDegree; i++){
+			result = result.multiply(partialExp);
+		}
+		
+		return result;
+	}
+	
+	private Vector<ModInteger> denseRepresentation(GenPolynomial<ModInteger> p, long maxDegree)
+	{
+		Vector<ModInteger> denseRepresentation = new Vector<ModInteger>((int)maxDegree);
+		
+		Monomial<ModInteger> monomial = null;
+		
+		long lastDegree = maxDegree;
+		
+		Iterator<Monomial<ModInteger>> iter = p.iterator();
+      while(iter.hasNext())
+      {
+      	// Get an element of p.
+      	monomial = iter.next();
+      	if(monomial.e.degree()+1 < lastDegree)
+      	{
+      		// Fill with zeros
+      		for(long i=monomial.e.degree()+1; i<lastDegree; ++i)
+      		{
+      			denseRepresentation.add(new ModInteger(fact,"0"));
+      		}
+      	}
+      	denseRepresentation.add(monomial.coefficient());
+      	lastDegree = monomial.e.degree();
+      }
+      
+      if(monomial.e.degree() > 0)
+      {
+      	// Fill with zeros
+   		for(long i=0; i<monomial.e.degree(); ++i)
+   		{
+   			denseRepresentation.add(new ModInteger(fact,"0"));
+   		}
+      }
+		
+      Collections.reverse(denseRepresentation);
+	  return denseRepresentation;
+	}
+	
 	
 	// Both vectors must have the same size
 	private Vector<ModInteger> multiplyElementByElemnt(Vector<ModInteger> v1, Vector<ModInteger> v2)
