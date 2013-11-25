@@ -146,37 +146,67 @@ public class ComplexFieldMultiplications
 	
 	private Vector<BigComplex> primitiveRootsOfUnity(long n)
 	{
+		// @pre Implemented to work only with n being a power of two.
 		Vector<BigComplex> primitiveRootsOfUnity = new Vector<BigComplex>();
 		Vector<BigComplex> rootsOfUnity = rootsOfUnity(n);
 		
-		for(int i=0; i<rootsOfUnity.size(); ++i)
+		if(n<=0)
 		{
-			// For each root of unity, check if it's primitive.
-			Vector<BigComplex> previousPowers = new Vector<BigComplex>();
-			// Calculate it's powers between 0 and n
-			for(int j=0; j<n; ++j)
+			// Empty set
+		}
+		else if(n==1)
+		{
+			primitiveRootsOfUnity.add(new BigComplex(1));
+		}
+		else if(n==2)
+		{
+			primitiveRootsOfUnity.add(new BigComplex(-1));
+		}
+		else if(n==4)
+		{
+			primitiveRootsOfUnity.add(new BigComplex(new BigRational(0), new BigRational(1)));
+			primitiveRootsOfUnity.add(new BigComplex(new BigRational(0), new BigRational(-1)));
+		}
+		else
+		{
+			for(int i=0; i<rootsOfUnity.size(); ++i)
 			{
-				previousPowers.add(power(rootsOfUnity.elementAt(i), j));
-			}
-			
-			boolean isPrimitive = true;
-			// Check that there is no two equal powers
-			for(int j=0; j<previousPowers.size(); ++j)
-			{
-				for(int k=j+1; k<previousPowers.size(); ++k)
+				if(i == 0 
+						|| i == ((1/4) * rootsOfUnity.size())-1 
+						|| i == ((2/4) * rootsOfUnity.size())-1
+						|| i == ((3/4) * rootsOfUnity.size())-1
+						)
 				{
-					if(previousPowers.elementAt(j) == previousPowers.elementAt(k))
+					// These special points (can't be just calculated due to precision errors) are not primitive.
+					continue;
+				}
+				// For each root of unity, check if it's primitive.
+				Vector<BigComplex> previousPowers = new Vector<BigComplex>();
+				// Calculate it's powers between 0 and n
+				for(int j=0; j<n; ++j)
+				{
+					previousPowers.add(power(rootsOfUnity.elementAt(i), j));
+				}
+				
+				boolean isPrimitive = true;
+				// Check that there is no two equal powers
+				for(int j=0; j<previousPowers.size(); ++j)
+				{
+					for(int k=j+1; k<previousPowers.size(); ++k)
 					{
-						isPrimitive = false;
+						if(previousPowers.elementAt(j) == previousPowers.elementAt(k))
+						{
+							isPrimitive = false;
+						}
 					}
 				}
-			}
-			if(isPrimitive)
-			{
-				primitiveRootsOfUnity.add(rootsOfUnity.elementAt(i));
+				if(isPrimitive)
+				{
+					primitiveRootsOfUnity.add(rootsOfUnity.elementAt(i));
+				}
 			}
 		}
-		
+
 		return primitiveRootsOfUnity;
 	}
 	
@@ -192,9 +222,8 @@ public class ComplexFieldMultiplications
 		
 		for(int i=0; i < n; ++i)
 		{
-			double real = modulus * Math.cos(i * sectorSize);
-			double imaginary = modulus * Math.sin(i * sectorSize);
-			
+			double real = modulus * StrictMath.cos(i * sectorSize);
+			double imaginary = modulus * StrictMath.sin(i * sectorSize);
 			
 			DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
 			otherSymbols.setDecimalSeparator('.');
