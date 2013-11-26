@@ -29,15 +29,16 @@ public class Main {
 	public static void main(String[] args) 
 	{
 		
-		System.out.println("\tCOMPLEX FIELD TEST\n");
+		/*System.out.println("\tCOMPLEX FIELD TEST\n");
 		testComplexFieldMultiplications();
 		System.out.println("\n");
+		*/
 		
-		/*
+		
 		System.out.println("\tZp FIELD TEST\n");
 		(new ZpFieldMultiplications(257)).main();
 		System.out.println("\n");
-		*/
+		
 		
 		// exampleMine();
 		// example0();

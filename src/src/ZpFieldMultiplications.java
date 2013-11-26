@@ -45,8 +45,8 @@ public class ZpFieldMultiplications {
 		System.out.println("gen: " + ring.generators().toString());
 
 		// Generate two random polynomials with the specified max degree
-		GenPolynomial<ModInteger> p1 = ring.random(6);
-		GenPolynomial<ModInteger> p2 = ring.random(6);
+		GenPolynomial<ModInteger> p1 = ring.random(90);
+		GenPolynomial<ModInteger> p2 = ring.random(10);
 		
 		System.out.println("p1: " + p1.toString());
 		System.out.println("p2: " + p2.toString());
@@ -129,7 +129,11 @@ public class ZpFieldMultiplications {
 		long m = this.getM(p1, p2);
 		long maxDegree = (long) Math.pow(2, m);
 		
+		System.out.println("M: " + m);
+		
 		ModInteger w = rootOfUnity(maxDegree);
+		
+		System.out.println("w: " + w);
 		
 		// Get the dense representations of the polynomials
 		Vector<ModInteger> denseP1 = denseRepresentation(p1, maxDegree);
@@ -209,7 +213,7 @@ public class ZpFieldMultiplications {
 	}
 	
 	// Calcula la primera raiz enésima de la unidad
-	public ModInteger rootOfUnity(long maxDegree){
+	/*public ModInteger rootOfUnity(long maxDegree){
 		// ModInteger Factory
 		ModIntegerRing mfac = new ModIntegerRing(prime);
 		
@@ -221,6 +225,35 @@ public class ZpFieldMultiplications {
 			
 			if(!sqrt.equals(mfac.getONE())){
 				return (new ModInteger(fact,(int)(Math.pow(i,2.0) % prime)));
+			}
+		}
+	
+		return new ModInteger(fact,-1);
+	}*/
+	
+	// Calcula la primera raiz enésima de la unidad
+	public ModInteger rootOfUnity(long m){
+		// ModInteger Factory
+		ModIntegerRing mfac = new ModIntegerRing(prime);
+		
+		
+		for(int i = 2; i < prime; i++){
+			ModInteger sqrt = new ModInteger(mfac,i);
+			boolean aux = true;
+			sqrt = this.power(sqrt,m);
+			
+			if(sqrt.equals(mfac.getONE())){
+				for(long j = m-1; j > 0; j--){
+					sqrt = new ModInteger(mfac,i);
+					sqrt = this.power(sqrt,j);
+					if(sqrt.equals(mfac.getONE())){
+						aux = false;
+					}
+				}
+				if(aux == true){
+					return (new ModInteger(fact,i));
+				}
+				aux = true;
 			}
 		}
 	
@@ -247,7 +280,7 @@ public class ZpFieldMultiplications {
 			for(int i=0; i<Math.pow(2,m-1); ++i)
 			{
 				temp[i] = B.elementAt(i).sum(C.elementAt(i).multiply(power(w,i)));
-				temp[(int) (Math.pow(2, m-1) + i)] = B.elementAt(i).subtract( C.elementAt(i).multiply( power(w,i) ) );
+				temp[(int) (Math.pow(2, m-1) + i)] = B.elementAt(i).subtract(C.elementAt(i).multiply(power(w,i) ) );
 			}
 	
 			for(int i=0; i<Math.pow(2, m); ++i)
