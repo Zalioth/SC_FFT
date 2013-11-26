@@ -82,6 +82,10 @@ public class Main {
       // Generate two random polynomials with the specified max degree
       GenPolynomial<BigComplex> p1 = polynomialFactory.random(3);
       GenPolynomial<BigComplex> p2 = polynomialFactory.random(3);
+      
+      //GenPolynomial<BigComplex> p1 = polynomialFactory.parse("1i2 x + 3i1");
+      //GenPolynomial<BigComplex> p2 = polynomialFactory.parse("4i1 x + 1i1");
+      
       System.out.println("p1: "+p1.toString());
       System.out.println("p2: "+p2.toString());
       

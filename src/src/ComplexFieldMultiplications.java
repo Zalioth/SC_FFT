@@ -104,7 +104,7 @@ public class ComplexFieldMultiplications
 		Vector<BigComplex> resultDense = FFT(m, w.firstElement().inverse(), mult);
 		for(int i=0; i<resultDense.size(); ++i)
 		{
-			resultDense.set(i, resultDense.elementAt(i).multiply(new BigComplex(new BigRational(1), new BigRational(maxDegree))));
+			resultDense.set(i, resultDense.elementAt(i).divide(new BigComplex(new BigRational(maxDegree))));
 		}
 		
 		result = getPolynomial(resultDense);
@@ -134,7 +134,7 @@ public class ComplexFieldMultiplications
 				temp[i] = B.elementAt(i).sum( C.elementAt(i).multiply( power(w,i) ) );
 				temp[(int) (Math.pow(2, m-1) + i)] = B.elementAt(i).subtract( C.elementAt(i).multiply( power(w,i) ) );
 			}
-			int asd = 0;
+
 			for(int i=0; i<Math.pow(2, m); ++i)
 			{
 				result.add(temp[i]);
