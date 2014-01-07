@@ -36,6 +36,7 @@ public class Main {
 		
 		
 		System.out.println("\tZp FIELD TEST\n");
+		//(new ZpFieldMultiplications(127)).main();
 		(new ZpFieldMultiplications(257)).main();
 		System.out.println("\n");
 		

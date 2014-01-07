@@ -45,8 +45,8 @@ public class ZpFieldMultiplications {
 		System.out.println("gen: " + ring.generators().toString());
 
 		// Generate two random polynomials with the specified max degree
-		GenPolynomial<ModInteger> p1 = ring.random(90);
-		GenPolynomial<ModInteger> p2 = ring.random(10);
+		GenPolynomial<ModInteger> p1 = ring.random(120);
+		GenPolynomial<ModInteger> p2 = ring.random(120);
 		
 		System.out.println("p1: " + p1.toString());
 		System.out.println("p2: " + p2.toString());
@@ -256,7 +256,9 @@ public class ZpFieldMultiplications {
 				aux = true;
 			}
 		}
-	
+		
+		System.err.println("No existen raices: " + m + "ésimas de la unidad");
+		System.exit(1);
 		return new ModInteger(fact,-1);
 	}
 	
