@@ -20,7 +20,7 @@ import edu.jas.poly.Monomial;
 
 public class ComplexFieldMultiplications
 {
-	private BigComplex coefficientFactory;
+   private BigComplex coefficientFactory;
    private String[] variables;
    private GenPolynomialRing<BigComplex> polynomialFactory;
 	

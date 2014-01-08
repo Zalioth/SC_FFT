@@ -3,6 +3,9 @@ package src;
  * Creado el 12/11/2013
  */
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,10 +31,15 @@ import edu.jas.poly.WeylRelations;
 
 public class Main {
 	
-	public static void main(String[] args) 
+	public static void main(String[] args) throws IOException 
 	{
 		int degreeX, degreeY;
+		Time time = new Time();
 		degreeX = degreeY = 1;
+		long prime = 65537;
+//		long prime = 257;
+//		long prime = 41;
+	
 
 		
 		/*System.out.println("\tCOMPLEX FIELD TEST\n");
@@ -42,20 +50,22 @@ public class Main {
 		}*/
 		
 
-//		long prime = 65537;
-//		long prime = 257;
-		long prime = 41;
+
 		System.out.println("\tZ"+prime+ " FIELD TEST\n");
-		
-		for(int i = 1; i < prime; i++){
+		FileWriter timesFich = new FileWriter("./tiemposZ" +prime+".txt");
+        PrintWriter pw = new PrintWriter(timesFich);
+        
+		for(int i = 1; i < prime; i++)
+		{
 			
 			if((i%2) == 0){degreeX++;}
 			else{degreeY++;}
 			
-			(new ZpFieldMultiplications(prime)).main(degreeX, degreeY);
-
+			(new ZpFieldMultiplications(prime)).main(degreeX, degreeY, time, pw);
+			pw.println((degreeX + degreeY + "\t" + time.getTime()));
+			time.clear();
 		}
-		
+		pw.close();
 		
 	
 		

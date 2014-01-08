@@ -1,19 +1,21 @@
 package src;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
+import util.PrimeFactors;
 import util.Time;
-import edu.jas.arith.BigComplex;
-import edu.jas.arith.BigRational;
 import edu.jas.arith.ModInteger;
 import edu.jas.arith.ModIntegerRing;
 import edu.jas.poly.ExpVector;
 import edu.jas.poly.GenPolynomial;
 import edu.jas.poly.GenPolynomialRing;
 import edu.jas.poly.Monomial;
-import edu.jas.structure.Power;
 
 public class ZpFieldMultiplications {
 	
@@ -29,8 +31,9 @@ public class ZpFieldMultiplications {
 		ring = new GenPolynomialRing<ModInteger>( fact, 1,var);
 	}
 
-	public void main(int maxDegreeX, int maxDegreeY) {
+	public void main(int maxDegreeX, int maxDegreeY, Time time, PrintWriter pw) throws IOException {
 
+		
 		Vector<ModInteger> test = new Vector<ModInteger>();
 		/*test.add(new ModInteger(fact,15));
 		test.add(new ModInteger(fact,1));
@@ -48,7 +51,7 @@ public class ZpFieldMultiplications {
 		// Generate two random polynomials with the specified max degree
 		GenPolynomial<ModInteger> p1 = ring.random(maxDegreeX);
 		GenPolynomial<ModInteger> p2 = ring.random(maxDegreeY);
-//		
+		
 //		System.out.println("p1: " + p1.toString());
 //		System.out.println("p2: " + p2.toString());
 		
@@ -59,7 +62,7 @@ public class ZpFieldMultiplications {
 	     GenPolynomial<ModInteger> schoolMultiplication = multiplySchool(p1, p2,prime);
 	      
 	      // Multiply using the FFT algorithm (implemented by me [the other me])
-	      GenPolynomial<ModInteger> fftMultiplication = multiplyFFT(p1, p2);
+	      GenPolynomial<ModInteger> fftMultiplication = multiplyFFT(p1, p2,time, pw);
 	   
 	    
 	      
@@ -126,20 +129,32 @@ public class ZpFieldMultiplications {
 	}
 		
 	public GenPolynomial<ModInteger> multiplyFFT(GenPolynomial<ModInteger> p1,
-			GenPolynomial<ModInteger> p2)
+			GenPolynomial<ModInteger> p2,Time time, PrintWriter pw) throws IOException
 	{
+		
 		GenPolynomial<ModInteger> result;
+		ModInteger w;
 		
 		// Get the minimum power of two that's greater than the sum of the degrees of the polynomials
 		long m = this.getM(p1, p2);
 		long maxDegree = (long) Math.pow(2, m);
 		
 //		System.out.println("M: " + m);
-		ModInteger w = rootOfUnity(maxDegree);
+		if(prime <= 257){
+			w = rootOfUnity(maxDegree, pw);
+		}
+		else{
+			w = rootOfUnityZp(maxDegree);
+		}
+		
+		if(w.isZERO()){
+			pw.close();
+			System.err.print("No existen más raices");
+			System.exit(1);
+		}
 		
 //		System.out.println("w: " + w);
-		
-		Time time = new Time();
+
 		time.start();
 		
 		// Get the dense representations of the polynomials
@@ -163,7 +178,8 @@ public class ZpFieldMultiplications {
 		
 		result = getPolynomial(resultDense);
 		time.stop();
-		System.out.println("Degree P1 + P2: "+ (p1.degree() + p1.degree()) + " Time: " + time.getTime());
+		System.out.println((p1.degree() + p1.degree()) + "\t" + time.getTime());
+
 		return result;
 	}
 	
@@ -219,28 +235,9 @@ public class ZpFieldMultiplications {
 		}
 		return result;
 	}
-	
-	// Calcula la primera raiz enésima de la unidad
-	/*public ModInteger rootOfUnity(long maxDegree){
-		// ModInteger Factory
-		ModIntegerRing mfac = new ModIntegerRing(prime);
 		
-		
-		for(int i = 2; i < prime; i++){
-			ModInteger sqrt = new ModInteger(mfac,i);
-				
-			sqrt = this.power(sqrt,maxDegree);
-			
-			if(!sqrt.equals(mfac.getONE())){
-				return (new ModInteger(fact,(int)(Math.pow(i,2.0) % prime)));
-			}
-		}
-	
-		return new ModInteger(fact,-1);
-	}*/
-	
 	// Calcula la primera raiz enésima de la unidad
-	public ModInteger rootOfUnity(long m){
+	public ModInteger rootOfUnity(long m, PrintWriter pw){
 		// ModInteger Factory
 		ModIntegerRing mfac = new ModIntegerRing(prime);
 		
@@ -265,9 +262,20 @@ public class ZpFieldMultiplications {
 			}
 		}
 		
+		pw.close();
 		System.err.println("No existen raices: " + m + "ésimas de la unidad");
 		System.exit(1);
 		return new ModInteger(fact,-1);
+	}
+	
+	public ModInteger rootOfUnityZp(long m){
+		ModInteger generator = this.calculateGenerator();
+		ModInteger w = new ModInteger(fact,0);
+		ModInteger pM1 = new ModInteger(fact, prime-1);
+		if(!generator.isZERO()){
+			w = power(generator, pM1.divide(new ModInteger(fact,m)));
+		}
+		return w;
 	}
 	
 	public Vector<ModInteger> FFT(long m, ModInteger w, Vector<ModInteger> densePoly)
@@ -316,6 +324,26 @@ public class ZpFieldMultiplications {
 			return (new ModInteger(fact,1));
 		}
 		for(int i = 2; i <= maxDegree; i++){
+			result = result.multiply(partialExp);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Calculates base^exp
+	 * @param base
+	 * @param maxDegree
+	 * @return
+	 */
+	private ModInteger power(ModInteger base, ModInteger maxDegree){
+		ModInteger result =  base.copy();
+		ModInteger partialExp = base.copy();
+		
+		if(maxDegree.isZERO()){
+			return (new ModInteger(fact,1));
+		}
+		for(ModInteger i = new ModInteger(fact,2); i.compareTo(maxDegree) <= 0; i = i.sum(new ModInteger(fact,1))){
 			result = result.multiply(partialExp);
 		}
 		
@@ -379,4 +407,38 @@ public class ZpFieldMultiplications {
 		
 		return r;
 	}
+	
+	private ModInteger calculateGenerator()
+	{
+		ModInteger generator = new ModInteger(fact,0);
+		long pM1 = prime-1;
+		List<Long> facts = PrimeFactors.primeFactors(pM1);
+		ModInteger a, result, exp1;
+		
+		exp1 = new ModInteger(fact,pM1);
+		
+		for(int i = 2; i < prime; i++)
+		{
+			a = new ModInteger(fact,i);
+			for(int j = 0; j < facts.size(); j++)
+			{
+				result = exp1.divide(new ModInteger(fact,facts.get(j)));
+				result = this.power(a,result);
+				if(!result.isONE())
+				{
+					if(j == facts.size()-1)
+					{
+						return a;
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		return generator;
+	}
+	
+	
 }
