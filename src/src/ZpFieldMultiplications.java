@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Vector;
 
+import util.Time;
 import edu.jas.arith.BigComplex;
 import edu.jas.arith.BigRational;
 import edu.jas.arith.ModInteger;
@@ -28,7 +29,7 @@ public class ZpFieldMultiplications {
 		ring = new GenPolynomialRing<ModInteger>( fact, 1,var);
 	}
 
-	public void main() {
+	public void main(int maxDegreeX, int maxDegreeY) {
 
 		Vector<ModInteger> test = new Vector<ModInteger>();
 		/*test.add(new ModInteger(fact,15));
@@ -42,14 +43,14 @@ public class ZpFieldMultiplications {
 		
 		Vector<ModInteger> res = this.FFT(3, new ModInteger(fact,9), test);*/
 	
-		System.out.println("gen: " + ring.generators().toString());
+//		System.out.println("gen: " + ring.generators().toString());
 
 		// Generate two random polynomials with the specified max degree
-		GenPolynomial<ModInteger> p1 = ring.random(120);
-		GenPolynomial<ModInteger> p2 = ring.random(120);
-		
-		System.out.println("p1: " + p1.toString());
-		System.out.println("p2: " + p2.toString());
+		GenPolynomial<ModInteger> p1 = ring.random(maxDegreeX);
+		GenPolynomial<ModInteger> p2 = ring.random(maxDegreeY);
+//		
+//		System.out.println("p1: " + p1.toString());
+//		System.out.println("p2: " + p2.toString());
 		
 		   // Multiply using the library (to check if my implementation is correct)
 	      GenPolynomial<ModInteger> libraryMultiplication = p1.multiply(p2);
@@ -63,23 +64,27 @@ public class ZpFieldMultiplications {
 	    
 	      
 
-		System.out.println("library: " + libraryMultiplication.toString());
-		System.out.println("school: " + schoolMultiplication.toString());
-		System.out.println("fft: " + fftMultiplication.toString());
+//		System.out.println("library: " + libraryMultiplication.toString());
+//		System.out.println("school: " + schoolMultiplication.toString());
+//		System.out.println("fft: " + fftMultiplication.toString());
 		
 
 		if (libraryMultiplication.toString().equals(
 				schoolMultiplication.toString())) {
-			System.out.println("School multiplication is correct");
+//			System.out.println("School multiplication is correct");
 		} else {
 			System.out.println("School multiplication is NOT correct");
+			System.err.print("ERROR");
+			System.exit(1);
 		}
 
 		if (libraryMultiplication.toString().equals(
 				fftMultiplication.toString())) {
-			System.out.println("FFT multiplication is correct");
+//			System.out.println("FFT multiplication is correct");
 		} else {
 			System.out.println("FFT multiplication is NOT correct");
+			System.err.print("ERROR");
+			System.exit(1);
 		}
 	}
 
@@ -129,11 +134,13 @@ public class ZpFieldMultiplications {
 		long m = this.getM(p1, p2);
 		long maxDegree = (long) Math.pow(2, m);
 		
-		System.out.println("M: " + m);
-		
+//		System.out.println("M: " + m);
 		ModInteger w = rootOfUnity(maxDegree);
 		
-		System.out.println("w: " + w);
+//		System.out.println("w: " + w);
+		
+		Time time = new Time();
+		time.start();
 		
 		// Get the dense representations of the polynomials
 		Vector<ModInteger> denseP1 = denseRepresentation(p1, maxDegree);
@@ -155,7 +162,8 @@ public class ZpFieldMultiplications {
 		}
 		
 		result = getPolynomial(resultDense);
-		
+		time.stop();
+		System.out.println("Degree P1 + P2: "+ (p1.degree() + p1.degree()) + " Time: " + time.getTime());
 		return result;
 	}
 	

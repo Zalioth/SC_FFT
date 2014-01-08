@@ -3,10 +3,11 @@ package src;
  * Creado el 12/11/2013
  */
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
+import util.Time;
 import edu.jas.arith.BigComplex;
 import edu.jas.arith.BigInteger;
 import edu.jas.arith.BigRational;
@@ -26,19 +27,37 @@ import edu.jas.poly.TermOrderOptimization;
 import edu.jas.poly.WeylRelations;
 
 public class Main {
+	
 	public static void main(String[] args) 
 	{
+		int degreeX, degreeY;
+		degreeX = degreeY = 1;
+
 		
 		/*System.out.println("\tCOMPLEX FIELD TEST\n");
-		testComplexFieldMultiplications();
-		System.out.println("\n");
-		*/
+		for(int i = 0; i < 100000; i++){
+			if((i%2) == 0){degreeX++;}
+			else{degreeY++;}
+			testComplexFieldMultiplications(degreeX, degreeY);
+		}*/
+		
+
+//		long prime = 65537;
+//		long prime = 257;
+		long prime = 41;
+		System.out.println("\tZ"+prime+ " FIELD TEST\n");
+		
+		for(int i = 1; i < prime; i++){
+			
+			if((i%2) == 0){degreeX++;}
+			else{degreeY++;}
+			
+			(new ZpFieldMultiplications(prime)).main(degreeX, degreeY);
+
+		}
 		
 		
-		System.out.println("\tZp FIELD TEST\n");
-		//(new ZpFieldMultiplications(127)).main();
-		(new ZpFieldMultiplications(257)).main();
-		System.out.println("\n");
+	
 		
 		
 		// exampleMine();
@@ -69,7 +88,7 @@ public class Main {
 		return prime;
 	}
 	
-	public static void testComplexFieldMultiplications()
+	public static void testComplexFieldMultiplications(int maxDegreeX, int maxDegreeY)
 	{
 		// Big Complex factory
 		BigComplex coefficientFactory = new BigComplex();
@@ -82,14 +101,14 @@ public class Main {
       
       
       // Generate two random polynomials with the specified max degree
-      GenPolynomial<BigComplex> p1 = polynomialFactory.random(3);
-      GenPolynomial<BigComplex> p2 = polynomialFactory.random(3);
+      GenPolynomial<BigComplex> p1 = polynomialFactory.random(maxDegreeX);
+      GenPolynomial<BigComplex> p2 = polynomialFactory.random(maxDegreeY);
       
       //GenPolynomial<BigComplex> p1 = polynomialFactory.parse("1i2 x + 3i1");
       //GenPolynomial<BigComplex> p2 = polynomialFactory.parse("4i1 x + 1i1");
       
-      System.out.println("p1: "+p1.toString());
-      System.out.println("p2: "+p2.toString());
+//      System.out.println("p1: "+p1.toString());
+//      System.out.println("p2: "+p2.toString());
       
       // Multiply using the library (to check if my implementation is correct)
       GenPolynomial<BigComplex> libraryMultiplication = p1.multiply(p2);
@@ -100,27 +119,27 @@ public class Main {
       // Multiply using the FFT algorithm (implemented by me)
       GenPolynomial<BigComplex> fftMultiplication = cfm.multiplyFFT(p1, p2);
       
-      System.out.println("library: "+libraryMultiplication.toString());
-   	System.out.println("school: "+schoolMultiplication.toString());
-   	System.out.println("fft: "+fftMultiplication.toString());
-      
-      if(libraryMultiplication.toString().equals(schoolMultiplication.toString()))
-      {
-      	System.out.println("School multiplication is correct");
-      }
-      else
-      {
-      	System.out.println("School multiplication is NOT correct");
-      }
-      
-      if(libraryMultiplication.toString().equals(fftMultiplication.toString()))
-      {
-      	System.out.println("FFT multiplication is correct");
-      }
-      else
-      {
-      	System.out.println("FFT multiplication is NOT correct");
-      }
+//      System.out.println("library: "+libraryMultiplication.toString());
+//   	System.out.println("school: "+schoolMultiplication.toString());
+//   	System.out.println("fft: "+fftMultiplication.toString());
+//      
+//      if(libraryMultiplication.toString().equals(schoolMultiplication.toString()))
+//      {
+//      	System.out.println("School multiplication is correct");
+//      }
+//      else
+//      {
+//      	System.out.println("School multiplication is NOT correct");
+//      }
+//      
+//      if(libraryMultiplication.toString().equals(fftMultiplication.toString()))
+//      {
+//      	System.out.println("FFT multiplication is correct");
+//      }
+//      else
+//      {
+//      	System.out.println("FFT multiplication is NOT correct");
+//      }
 	}
 
 	public static void exampleMine() {
