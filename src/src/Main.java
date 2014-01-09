@@ -58,8 +58,8 @@ public class Main {
 		for(int i = 1; i < prime; i++)
 		{
 			
-			if((i%2) == 0){degreeX++;}
-			else{degreeY++;}
+			degreeX++;
+			degreeY++;
 			
 			(new ZpFieldMultiplications(prime)).main(degreeX, degreeY, time, pw);
 			pw.println((degreeX + degreeY + "\t" + time.getTime()));

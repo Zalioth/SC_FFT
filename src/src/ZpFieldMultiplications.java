@@ -1,15 +1,22 @@
 package src;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import util.PrimeFactors;
 import util.Time;
+import edu.jas.arith.BigInteger;
 import edu.jas.arith.ModInteger;
 import edu.jas.arith.ModIntegerRing;
 import edu.jas.poly.ExpVector;
@@ -22,15 +29,46 @@ public class ZpFieldMultiplications {
 	long prime;
 	ModIntegerRing fact;
 	GenPolynomialRing<ModInteger> ring;
+	Map<Long,Map<Long, ModInteger>> dataBase;
 	
-	public ZpFieldMultiplications(long prime){
+	public ZpFieldMultiplications(long prime) throws IOException{
 		this.prime = prime;
 		fact = new ModIntegerRing(prime);
 		String[] var = new String[] { "x" };
 		// Polynomial factory
 		ring = new GenPolynomialRing<ModInteger>( fact, 1,var);
+		initDataBase();
 	}
 
+	private void initDataBase() throws IOException{
+		dataBase = new HashMap<Long,Map<Long, ModInteger>>();
+		File file = new File("./roots.txt");
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		String line = null;
+		while( (line = br.readLine())!= null ){
+		        // \\s+ means any number of whitespaces between tokens
+		    String [] tokens = line.split("\t|\n");
+		    String varPrime = tokens[0];
+		    String varRootN = tokens[1];
+		    String varRoot = tokens[2];
+		    
+		    Long valPrime = Long.parseLong(varPrime);
+		    Long valRootN = Long.parseLong(varRootN);
+		    ModInteger valRoot = new ModInteger(fact,Integer.parseInt(varRoot));
+		    Map<Long, ModInteger> submap;
+		    
+		    if(dataBase.get(valPrime) == null){
+		    	submap = new HashMap<Long, ModInteger>();
+		    	submap.put(valRootN, valRoot);
+		    	dataBase.put(valPrime, submap);
+		    }
+		    else{
+		    	submap = dataBase.get(valPrime);
+		    	submap.put(valRootN, valRoot);
+		    }
+		}
+	}
+	
 	public void main(int maxDegreeX, int maxDegreeY, Time time, PrintWriter pw) throws IOException {
 
 		
@@ -56,10 +94,10 @@ public class ZpFieldMultiplications {
 //		System.out.println("p2: " + p2.toString());
 		
 		   // Multiply using the library (to check if my implementation is correct)
-	      GenPolynomial<ModInteger> libraryMultiplication = p1.multiply(p2);
+//	      GenPolynomial<ModInteger> libraryMultiplication = p1.multiply(p2);
 	      
 	      // Multiply using the school algorithm (implemented by me [the other me])
-	     GenPolynomial<ModInteger> schoolMultiplication = multiplySchool(p1, p2,prime);
+//	     GenPolynomial<ModInteger> schoolMultiplication = multiplySchool(p1, p2,prime);
 	      
 	      // Multiply using the FFT algorithm (implemented by me [the other me])
 	      GenPolynomial<ModInteger> fftMultiplication = multiplyFFT(p1, p2,time, pw);
@@ -72,23 +110,23 @@ public class ZpFieldMultiplications {
 //		System.out.println("fft: " + fftMultiplication.toString());
 		
 
-		if (libraryMultiplication.toString().equals(
-				schoolMultiplication.toString())) {
-//			System.out.println("School multiplication is correct");
-		} else {
-			System.out.println("School multiplication is NOT correct");
-			System.err.print("ERROR");
-			System.exit(1);
-		}
-
-		if (libraryMultiplication.toString().equals(
-				fftMultiplication.toString())) {
-//			System.out.println("FFT multiplication is correct");
-		} else {
-			System.out.println("FFT multiplication is NOT correct");
-			System.err.print("ERROR");
-			System.exit(1);
-		}
+//		if (libraryMultiplication.toString().equals(
+//				schoolMultiplication.toString())) {
+////			System.out.println("School multiplication is correct");
+//		} else {
+//			System.out.println("School multiplication is NOT correct");
+//			System.err.print("ERROR");
+//			System.exit(1);
+//		}
+//
+//		if (libraryMultiplication.toString().equals(
+//				fftMultiplication.toString())) {
+////			System.out.println("FFT multiplication is correct");
+//		} else {
+//			System.out.println("FFT multiplication is NOT correct");
+//			System.err.print("ERROR");
+//			System.exit(1);
+//		}
 	}
 
 	private GenPolynomial<ModInteger> multiplySchool(GenPolynomial<ModInteger> p1, GenPolynomial<ModInteger> p2,long prime) {
@@ -140,18 +178,37 @@ public class ZpFieldMultiplications {
 		long maxDegree = (long) Math.pow(2, m);
 		
 //		System.out.println("M: " + m);
-		if(prime <= 257){
-			w = rootOfUnity(maxDegree, pw);
+		
+		//Si existe el primo en la base de datos
+		if(dataBase.get(prime) != null){
+			Map<Long, ModInteger> roots = dataBase.get(prime);
+			//Si existe la raíz buscada
+			if(roots.get(maxDegree) != null){
+				w = roots.get(maxDegree);
+			}
+			else{
+				if(prime <= 257){
+					w = rootOfUnity(maxDegree, pw);
+				}
+				else{
+					w = rootOfUnityZp(maxDegree, pw);
+				}
+				FileWriter rootFich = new FileWriter("./roots.txt");
+		        PrintWriter pRoot = new PrintWriter(rootFich);
+		    	pRoot.println(prime + "\t" + maxDegree + "\t" + w + "\t");
+		    	pRoot.close();
+		    	System.out.println("Añadida raíz a fichero");
+			}
 		}
 		else{
-			w = rootOfUnityZp(maxDegree);
+			if(prime <= 257){
+				w = rootOfUnity(maxDegree, pw);
+			}
+			else{
+				w = rootOfUnityZp(maxDegree, pw);
+			}
 		}
 		
-		if(w.isZERO()){
-			pw.close();
-			System.err.print("No existen más raices");
-			System.exit(1);
-		}
 		
 //		System.out.println("w: " + w);
 
@@ -268,12 +325,17 @@ public class ZpFieldMultiplications {
 		return new ModInteger(fact,-1);
 	}
 	
-	public ModInteger rootOfUnityZp(long m){
+	public ModInteger rootOfUnityZp(long m, PrintWriter pw) throws IOException{
 		ModInteger generator = this.calculateGenerator();
 		ModInteger w = new ModInteger(fact,0);
 		ModInteger pM1 = new ModInteger(fact, prime-1);
 		if(!generator.isZERO()){
 			w = power(generator, pM1.divide(new ModInteger(fact,m)));
+		}
+		else{
+			pw.close();
+			System.err.println("No existen raices: " + m + "ésimas de la unidad");
+			System.exit(1);
 		}
 		return w;
 	}
