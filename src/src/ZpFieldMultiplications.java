@@ -235,7 +235,8 @@ public class ZpFieldMultiplications {
 		
 		result = getPolynomial(resultDense);
 		time.stop();
-		System.out.println((p1.degree() + p1.degree()) + "\t" + time.getTime());
+		System.out.println((p1.degree() + p2.degree()) + "\t" + time.getTime());
+		pw.println((p1.degree() + p2.degree()) + "\t" + time.getTime());
 
 		return result;
 	}

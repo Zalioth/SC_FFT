@@ -1,4 +1,5 @@
 package src;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Collections;
@@ -82,10 +83,11 @@ public class ComplexFieldMultiplications
 	}
 	
 	public GenPolynomial<BigComplex> multiplyFFT(GenPolynomial<BigComplex> p1,
-			GenPolynomial<BigComplex> p2)
+			GenPolynomial<BigComplex> p2, Time time, PrintWriter pw)
 	{
+		time.start();
 		GenPolynomial<BigComplex> result;
-		Time time = new Time();
+	
 		
 		// Get the minimum power of two that's greater than the sum of the degrees of the polynomials
 		long m = (long) Math.ceil( Math.log(p1.degree()+1 + p2.degree()+1) / Math.log(2) );
@@ -111,7 +113,8 @@ public class ComplexFieldMultiplications
 		
 		result = getPolynomial(resultDense);
 		time.stop();
-		System.out.println("Degree P1 + P2: "+ (p1.degree() + p1.degree()) + " Time: " + time.getTime());
+		pw.println((p1.degree() + p1.degree()) + "\t" + time.getTime());
+		System.out.println((p1.degree() + p1.degree()) + "\t" + time.getTime());
 		return result;
 	}
 	

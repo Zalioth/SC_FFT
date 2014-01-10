@@ -41,13 +41,18 @@ public class Main {
 //		long prime = 41;
 	
 
-		
-		/*System.out.println("\tCOMPLEX FIELD TEST\n");
-		for(int i = 0; i < 100000; i++){
-			if((i%2) == 0){degreeX++;}
-			else{degreeY++;}
-			testComplexFieldMultiplications(degreeX, degreeY);
-		}*/
+//		System.out.println("\tZ"+prime+ " FIELD TEST\n");
+//		FileWriter timesFich = new FileWriter("./tiemposC" +prime+".txt", true);
+//        PrintWriter pw = new PrintWriter(timesFich);
+//		System.out.println("\tCOMPLEX FIELD TEST\n");
+//		for(int i = 0; i < 100; i++){
+//			if((i%2) == 0){degreeX++;}
+//			else{degreeY++;}
+//			testComplexFieldMultiplications(degreeX, degreeY, time, pw);
+//			//pw.println((degreeX + degreeY + "\t" + time.getTime()));
+//			time.clear();
+//		}
+//        pw.close();
 		
 
 
@@ -55,15 +60,16 @@ public class Main {
 		FileWriter timesFich = new FileWriter("./tiemposZ" +prime+".txt");
         PrintWriter pw = new PrintWriter(timesFich);
         
-		for(int i = 1; i < prime; i++)
+		for(int i = 0; i < prime; i++)
 		{
-			
-			degreeX++;
-			degreeY++;
+			degreeX = degreeX+10;
+			degreeY = degreeY+10;
 			
 			(new ZpFieldMultiplications(prime)).main(degreeX, degreeY, time, pw);
-			pw.println((degreeX + degreeY + "\t" + time.getTime()));
+			//pw.println((degreeX + degreeY + "\t" + time.getTime()));
 			time.clear();
+			
+			
 		}
 		pw.close();
 		
@@ -98,7 +104,7 @@ public class Main {
 		return prime;
 	}
 	
-	public static void testComplexFieldMultiplications(int maxDegreeX, int maxDegreeY)
+	public static void testComplexFieldMultiplications(int maxDegreeX, int maxDegreeY, Time time, PrintWriter pw)
 	{
 		// Big Complex factory
 		BigComplex coefficientFactory = new BigComplex();
@@ -121,13 +127,13 @@ public class Main {
 //      System.out.println("p2: "+p2.toString());
       
       // Multiply using the library (to check if my implementation is correct)
-      GenPolynomial<BigComplex> libraryMultiplication = p1.multiply(p2);
+//      GenPolynomial<BigComplex> libraryMultiplication = p1.multiply(p2);
       
       // Multiply using the school algorithm (implemented by me)
-      GenPolynomial<BigComplex> schoolMultiplication = cfm.multiplySchool(p1, p2);
+//      GenPolynomial<BigComplex> schoolMultiplication = cfm.multiplySchool(p1, p2);
       
       // Multiply using the FFT algorithm (implemented by me)
-      GenPolynomial<BigComplex> fftMultiplication = cfm.multiplyFFT(p1, p2);
+      GenPolynomial<BigComplex> fftMultiplication = cfm.multiplyFFT(p1, p2,time,pw);
       
 //      System.out.println("library: "+libraryMultiplication.toString());
 //   	System.out.println("school: "+schoolMultiplication.toString());
