@@ -35,43 +35,48 @@ public class Main {
 	{
 		int degreeX, degreeY;
 		Time time = new Time();
-		degreeX = degreeY = 1;
-		long prime = 65537;
+		Time time2 = new Time();
+		degreeX = degreeY = 0;
+//		long prime = 65537;
 //		long prime = 257;
-//		long prime = 41;
+		long prime = 41;
 	
 
-//		System.out.println("\tZ"+prime+ " FIELD TEST\n");
-//		FileWriter timesFich = new FileWriter("./tiemposC" +prime+".txt", true);
-//        PrintWriter pw = new PrintWriter(timesFich);
-//		System.out.println("\tCOMPLEX FIELD TEST\n");
-//		for(int i = 0; i < 100; i++){
-//			if((i%2) == 0){degreeX++;}
-//			else{degreeY++;}
-//			testComplexFieldMultiplications(degreeX, degreeY, time, pw);
-//			//pw.println((degreeX + degreeY + "\t" + time.getTime()));
-//			time.clear();
-//		}
-//        pw.close();
+		System.out.println("\tC");
+		FileWriter timesFich = new FileWriter("./tiemposC" +prime+".txt", true);
+        PrintWriter pw = new PrintWriter(timesFich);
+		System.out.println("\tCOMPLEX FIELD TEST\n");
+		for(int i = 0; i < 100; i++){
+			degreeX++;
+			degreeY++;
+			testComplexFieldMultiplications(degreeX, degreeY, time,time2, pw);
+			//pw.println((degreeX + degreeY + "\t" + time.getTime()));
+			pw.println((degreeX + degreeY + "\t" + time2.getTime() + "\t" + time.getTime()));
+			System.out.println((degreeX + degreeY + "\t" + time2.getTime() + "\t" + time.getTime()));
+			time.clear();
+		}
+        pw.close();
 		
 
-
-		System.out.println("\tZ"+prime+ " FIELD TEST\n");
-		FileWriter timesFich = new FileWriter("./tiemposZ" +prime+".txt");
-        PrintWriter pw = new PrintWriter(timesFich);
-        
-		for(int i = 0; i < prime; i++)
-		{
-			degreeX = degreeX+10;
-			degreeY = degreeY+10;
-			
-			(new ZpFieldMultiplications(prime)).main(degreeX, degreeY, time, pw);
-			//pw.println((degreeX + degreeY + "\t" + time.getTime()));
-			time.clear();
-			
-			
-		}
-		pw.close();
+//
+//		System.out.println("\tZ"+prime+ " FIELD TEST\n");
+//		FileWriter timesFich = new FileWriter("./tiemposZ" +prime+".txt");
+//        PrintWriter pw = new PrintWriter(timesFich);
+//        
+//		for(int i = 0; i < 7; i++)
+//		{
+//			degreeX = degreeX+1;
+//			degreeY = degreeY+1;
+//			
+//			(new ZpFieldMultiplications(prime)).main(degreeX, degreeY, time,time2, pw);
+//			pw.println((degreeX + degreeY + "\t" + time2.getTime() + "\t" + time.getTime()));
+//			System.out.println((degreeX + degreeY + "\t" + time2.getTime() + "\t" + time.getTime()));
+//			time.clear();
+//			time2.clear();
+//			
+//			
+//		}
+//		pw.close();
 		
 	
 		
@@ -104,7 +109,7 @@ public class Main {
 		return prime;
 	}
 	
-	public static void testComplexFieldMultiplications(int maxDegreeX, int maxDegreeY, Time time, PrintWriter pw)
+	public static void testComplexFieldMultiplications(int maxDegreeX, int maxDegreeY, Time time, Time time2, PrintWriter pw)
 	{
 		// Big Complex factory
 		BigComplex coefficientFactory = new BigComplex();
@@ -130,7 +135,9 @@ public class Main {
 //      GenPolynomial<BigComplex> libraryMultiplication = p1.multiply(p2);
       
       // Multiply using the school algorithm (implemented by me)
-//      GenPolynomial<BigComplex> schoolMultiplication = cfm.multiplySchool(p1, p2);
+      time2.start();
+      GenPolynomial<BigComplex> schoolMultiplication = cfm.multiplySchool(p1, p2);
+      time2.stop();
       
       // Multiply using the FFT algorithm (implemented by me)
       GenPolynomial<BigComplex> fftMultiplication = cfm.multiplyFFT(p1, p2,time,pw);

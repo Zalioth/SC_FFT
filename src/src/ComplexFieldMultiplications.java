@@ -114,7 +114,7 @@ public class ComplexFieldMultiplications
 		result = getPolynomial(resultDense);
 		time.stop();
 		pw.println((p1.degree() + p1.degree()) + "\t" + time.getTime());
-		System.out.println((p1.degree() + p1.degree()) + "\t" + time.getTime());
+		//System.out.println((p1.degree() + p1.degree()) + "\t" + time.getTime());
 		return result;
 	}
 	

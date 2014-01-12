@@ -69,7 +69,7 @@ public class ZpFieldMultiplications {
 		}
 	}
 	
-	public void main(int maxDegreeX, int maxDegreeY, Time time, PrintWriter pw) throws IOException {
+	public void main(int maxDegreeX, int maxDegreeY, Time time1, Time time2, PrintWriter pw) throws IOException {
 
 		
 		Vector<ModInteger> test = new Vector<ModInteger>();
@@ -97,10 +97,13 @@ public class ZpFieldMultiplications {
 //	      GenPolynomial<ModInteger> libraryMultiplication = p1.multiply(p2);
 	      
 	      // Multiply using the school algorithm (implemented by me [the other me])
-//	     GenPolynomial<ModInteger> schoolMultiplication = multiplySchool(p1, p2,prime);
-	      
+		
+		 time2.start();
+	     GenPolynomial<ModInteger> schoolMultiplication = multiplySchool(p1, p2,prime);
+	     time2.stop(); 
+	     
 	      // Multiply using the FFT algorithm (implemented by me [the other me])
-	      GenPolynomial<ModInteger> fftMultiplication = multiplyFFT(p1, p2,time, pw);
+	      GenPolynomial<ModInteger> fftMultiplication = multiplyFFT(p1, p2,time1, pw);
 	   
 	    
 	      
@@ -235,8 +238,8 @@ public class ZpFieldMultiplications {
 		
 		result = getPolynomial(resultDense);
 		time.stop();
-		System.out.println((p1.degree() + p2.degree()) + "\t" + time.getTime());
-		pw.println((p1.degree() + p2.degree()) + "\t" + time.getTime());
+		//System.out.println((p1.degree() + p2.degree()) + "\t" + time.getTime());
+		
 
 		return result;
 	}
