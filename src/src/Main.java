@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 
 import util.Time;
 import edu.jas.arith.BigComplex;
@@ -33,29 +34,79 @@ public class Main {
 	
 	public static void main(String[] args) throws IOException 
 	{
+		Scanner scan = new Scanner ( System.in );
+		boolean end = false;
 		int degreeX, degreeY;
 		Time time = new Time();
 		Time time2 = new Time();
 		degreeX = degreeY = 0;
-//		long prime = 65537;
-//		long prime = 257;
-		long prime = 41;
-	
-
-		System.out.println("\tC");
-		FileWriter timesFich = new FileWriter("./tiemposC" +prime+".txt", true);
+		long prime = 0;
+		int degree = 2;
+		
+		FileWriter timesFich = new FileWriter("./Resultados", true);
         PrintWriter pw = new PrintWriter(timesFich);
-		System.out.println("\tCOMPLEX FIELD TEST\n");
-		for(int i = 0; i < 100; i++){
-			degreeX++;
-			degreeY++;
-			testComplexFieldMultiplications(degreeX, degreeY, time,time2, pw);
-			//pw.println((degreeX + degreeY + "\t" + time.getTime()));
-			pw.println((degreeX + degreeY + "\t" + time2.getTime() + "\t" + time.getTime()));
-			System.out.println((degreeX + degreeY + "\t" + time2.getTime() + "\t" + time.getTime()));
-			time.clear();
+		
+		while(!end){
+			System.out.println("1 - C.");
+			System.out.println("2 - Z41.");
+			System.out.println("3 - Z257.");
+			System.out.println("4 - Z65537.");
+			System.out.println("5 - Salir.");
+
+			System.out.println("Elija una opción:");
+			int selection = scan.nextInt();
+			
+			if(selection != 5){
+				System.out.println("Elija grado máximo de polinomios");
+				degree = scan.nextInt();
+			}
+
+			switch(selection){
+			case 1:
+				testComplexFieldMultiplications(degree, degree, time,time2, pw);
+				break;
+			case 2:
+				prime = 41;
+				(new ZpFieldMultiplications(prime)).main(degree, degree, time,time2, pw);
+				break;
+			case 3:
+				prime = 257;
+				(new ZpFieldMultiplications(prime)).main(degree, degree, time,time2, pw);
+				break;
+			case 4:
+				prime = 65537;
+				(new ZpFieldMultiplications(prime)).main(degree, degree, time,time2, pw);
+				break;
+			case 5:
+				end = true;
+				pw.close();
+				System.out.println("Programa Finalizado.");
+				break;
+			}
+
+
+
+			if(selection != 5){
+				System.out.println("Pulsa ENTER para continuar...");
+				scan.nextLine();
+				scan.nextLine();
+			}
+
 		}
-        pw.close();
+//		System.out.println("\tC");
+//		FileWriter timesFich = new FileWriter("./tiemposC" +prime+".txt", true);
+//        PrintWriter pw = new PrintWriter(timesFich);
+//		System.out.println("\tCOMPLEX FIELD TEST\n");
+//		for(int i = 0; i < 100; i++){
+//			degreeX++;
+//			degreeY++;
+//			testComplexFieldMultiplications(degreeX, degreeY, time,time2, pw);
+//			//pw.println((degreeX + degreeY + "\t" + time.getTime()));
+//			pw.println((degreeX + degreeY + "\t" + time2.getTime() + "\t" + time.getTime()));
+//			System.out.println((degreeX + degreeY + "\t" + time2.getTime() + "\t" + time.getTime()));
+//			time.clear();
+//		}
+//        pw.close();
 		
 
 //
@@ -128,11 +179,15 @@ public class Main {
       //GenPolynomial<BigComplex> p1 = polynomialFactory.parse("1i2 x + 3i1");
       //GenPolynomial<BigComplex> p2 = polynomialFactory.parse("4i1 x + 1i1");
       
-//      System.out.println("p1: "+p1.toString());
-//      System.out.println("p2: "+p2.toString());
+      System.out.println();
+      
+      System.out.println("p1: "+p1.toString());
+      System.out.println("p2: "+p2.toString());
+      
+      System.out.println();
       
       // Multiply using the library (to check if my implementation is correct)
-//      GenPolynomial<BigComplex> libraryMultiplication = p1.multiply(p2);
+      GenPolynomial<BigComplex> libraryMultiplication = p1.multiply(p2);
       
       // Multiply using the school algorithm (implemented by me)
       time2.start();
@@ -142,19 +197,21 @@ public class Main {
       // Multiply using the FFT algorithm (implemented by me)
       GenPolynomial<BigComplex> fftMultiplication = cfm.multiplyFFT(p1, p2,time,pw);
       
-//      System.out.println("library: "+libraryMultiplication.toString());
-//   	System.out.println("school: "+schoolMultiplication.toString());
-//   	System.out.println("fft: "+fftMultiplication.toString());
-//      
-//      if(libraryMultiplication.toString().equals(schoolMultiplication.toString()))
-//      {
-//      	System.out.println("School multiplication is correct");
-//      }
-//      else
-//      {
-//      	System.out.println("School multiplication is NOT correct");
-//      }
-//      
+      System.out.println("library: "+libraryMultiplication.toString());
+   	  System.out.println("school: "+schoolMultiplication.toString());
+   	  System.out.println("fft (numero aproximado): "+fftMultiplication.toString());
+      
+   	System.out.println();
+   	
+      if(libraryMultiplication.toString().equals(schoolMultiplication.toString()))
+      {
+      	System.out.println("School multiplication is correct");
+      }
+      else
+      {
+      	System.out.println("School multiplication is NOT correct");
+      }
+      
 //      if(libraryMultiplication.toString().equals(fftMultiplication.toString()))
 //      {
 //      	System.out.println("FFT multiplication is correct");

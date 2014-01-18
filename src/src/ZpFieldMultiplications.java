@@ -90,11 +90,14 @@ public class ZpFieldMultiplications {
 		GenPolynomial<ModInteger> p1 = ring.random(maxDegreeX);
 		GenPolynomial<ModInteger> p2 = ring.random(maxDegreeY);
 		
-//		System.out.println("p1: " + p1.toString());
-//		System.out.println("p2: " + p2.toString());
+		System.out.println();
 		
+		System.out.println("p1: " + p1.toString());
+		System.out.println("p2: " + p2.toString());
+		
+		System.out.println();
 		   // Multiply using the library (to check if my implementation is correct)
-//	      GenPolynomial<ModInteger> libraryMultiplication = p1.multiply(p2);
+	      GenPolynomial<ModInteger> libraryMultiplication = p1.multiply(p2);
 	      
 	      // Multiply using the school algorithm (implemented by me [the other me])
 		
@@ -108,28 +111,28 @@ public class ZpFieldMultiplications {
 	    
 	      
 
-//		System.out.println("library: " + libraryMultiplication.toString());
-//		System.out.println("school: " + schoolMultiplication.toString());
-//		System.out.println("fft: " + fftMultiplication.toString());
+		System.out.println("library: " + libraryMultiplication.toString());
+		System.out.println("school: " + schoolMultiplication.toString());
+		System.out.println("fft: " + fftMultiplication.toString());
 		
+		System.out.println();
+		if (libraryMultiplication.toString().equals(
+				schoolMultiplication.toString())) {
+			System.out.println("School multiplication is correct");
+	      		} else {
+			System.out.println("School multiplication is NOT correct");
+			System.err.print("ERROR");
+			System.exit(1);
+		}
 
-//		if (libraryMultiplication.toString().equals(
-//				schoolMultiplication.toString())) {
-////			System.out.println("School multiplication is correct");
-//		} else {
-//			System.out.println("School multiplication is NOT correct");
-//			System.err.print("ERROR");
-//			System.exit(1);
-//		}
-//
-//		if (libraryMultiplication.toString().equals(
-//				fftMultiplication.toString())) {
-////			System.out.println("FFT multiplication is correct");
-//		} else {
-//			System.out.println("FFT multiplication is NOT correct");
-//			System.err.print("ERROR");
-//			System.exit(1);
-//		}
+		if (libraryMultiplication.toString().equals(
+				fftMultiplication.toString())) {
+			System.out.println("FFT multiplication is correct");
+		} else {
+		System.out.println("FFT multiplication is NOT correct");
+			System.err.print("ERROR");
+			System.exit(1);
+		}
 	}
 
 	private GenPolynomial<ModInteger> multiplySchool(GenPolynomial<ModInteger> p1, GenPolynomial<ModInteger> p2,long prime) {
